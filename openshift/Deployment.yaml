@@ -1,0 +1,69 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: issos
+  labels:
+    app: issos
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment.name: issos
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: issos
+        deployment.name: issos
+    spec:
+      restartPolicy: Always
+      serviceAccountName: sa-issos
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      securityContext: {}
+      containers:
+        - resources:
+            limits:
+              cpu: 300m
+              memory: 450Mi
+            requests:
+              cpu: 250m
+              memory: 410Mi
+          terminationMessagePath: /dev/termination-log
+          name: default-container
+          env:
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: JAVA_OPTS
+              valueFrom:
+                configMapKeyRef:
+                  name: issoos-conf
+                  key: JAVA_OPTS
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: issoos-conf
+              readOnly: true
+              mountPath: /config
+          terminationMessagePolicy: File
+          image: >-
+            image-registry.openshift-image-registry.svc:5000/zaharovdm/issos@sha256:fe0a2b370e505723a4b9c273fe27e1768f3c0a018b83f6f0b1de13532a5a63cf
+      serviceAccount: sa-issos
+      volumes:
+        - name: issoos-conf
+          configMap:
+            name: issoos-conf
+            defaultMode: 420
+      dnsPolicy: ClusterFirst
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600

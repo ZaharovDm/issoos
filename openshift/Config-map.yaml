@@ -1,0 +1,15 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: issoos-conf
+data:
+  JAVA_OPTS: '-Dspring.config.location=/config/ -Dfile.encoding=UTF-8 -Xms256m -Xmx512m'
+  application.yaml: |
+    issoos:
+      client:
+        id: issoos-oauth-client
+        secret: test
+      kube:
+        api:
+          suffix: apps-crc.testing
+          url: https://api.crc.testing:6443

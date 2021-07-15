@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="test-result">
+    <table>
+        <tr>
+            <td width="200">Ф.И.О.</td>
+            <td th:text="${test.assignedUserTest.user.lastName + ' ' +test.assignedUserTest.user.firstName}"></td>
+        </tr>
+        <tr>
+            <td width="200">Дата рождения</td>
+            <td th:text="${test.assignedUserTest.user.birthDay}"></td>
+        </tr>
+        <tr>
+            <td width="200">Дата проведения теста</td>
+            <td th:text="${test.testResult.lastUpdatedTimestamp}"></td>
+        </tr>
+        <tr>
+            <td width="200">Название теста</td>
+            <td th:text="${test.assignedUserTest.test.name}"></td>
+        </tr>
+        <tr>
+            <td width="200">Общее время теста</td>
+            <td th:text="${test.testDuration}"/>
+        </tr>
+    </table>
+</div>
+</body>
+</html>
