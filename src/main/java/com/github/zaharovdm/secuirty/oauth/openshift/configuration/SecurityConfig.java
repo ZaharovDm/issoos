@@ -31,12 +31,13 @@ import java.util.Arrays;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final OpenshiftClientRepository openshiftClientRegistration;
-    private final InMemoryOAuth2AuthorizedClientService inMemoryOAuth2AuthorizedClientService;
+    private final InMemoryOAuth2AuthorizedClientService inMemoryOAuth2AuthorizedOpenshiftClientService;
 
     public SecurityConfig(final OpenshiftClientRepository openshiftClientRegistration,
                           final OpenshiftOAuth2UserRegistry openshiftOAuth2UserRegistry) {
         this.openshiftClientRegistration = openshiftClientRegistration;
-        this.inMemoryOAuth2AuthorizedClientService = openshiftOAuth2UserRegistry.getInMemoryOAuth2AuthorizedClientService();
+        this.inMemoryOAuth2AuthorizedOpenshiftClientService =
+                openshiftOAuth2UserRegistry.getInMemoryOAuth2AuthorizedClientService();
     }
 
     @Override
@@ -44,7 +45,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
 
         http
-                .oauth2Login(this::prepareOauth2Login)
+                .oauth2Login(this::prepareOpenshiftOauth2Login)
                 .authorizeRequests()
                 .antMatchers("/login**", "/login/**", "/callback/", "/webjars/**", "/error**")
                 .permitAll()
@@ -55,13 +56,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .oauth2Login();
     }
 
-    private OAuth2LoginConfigurer<HttpSecurity> prepareOauth2Login(final OAuth2LoginConfigurer<HttpSecurity> oauth2Login) {
+    private OAuth2LoginConfigurer<HttpSecurity> prepareOpenshiftOauth2Login(final OAuth2LoginConfigurer<HttpSecurity> oauth2Login) {
         DefaultAuthorizationCodeTokenResponseClient oAuth2AccessTokenResponseClient = new DefaultAuthorizationCodeTokenResponseClient();
         //Подменяем restOperation, в данный момент для включения trustAll = true, в целевом варианте вам следует подложить сертификаты
         oAuth2AccessTokenResponseClient.setRestOperations(trustAllRestTemplateForTokenResponseClient());
 
         return oauth2Login
-                .authorizedClientRepository(new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(inMemoryOAuth2AuthorizedClientService))
+                .authorizedClientRepository(new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(inMemoryOAuth2AuthorizedOpenshiftClientService))
                 .userInfoEndpoint(userInfoEndpointConfig ->
                         userInfoEndpointConfig.userService(new OpenshiftOAuth2UserService()))
                 .tokenEndpoint(tokenEndpointConfig ->

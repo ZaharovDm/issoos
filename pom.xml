@@ -62,6 +62,7 @@
             <optional>true</optional>
         </dependency>
 
+        <!--    Libs for creating RestTemplate with TrustAll flag    -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
